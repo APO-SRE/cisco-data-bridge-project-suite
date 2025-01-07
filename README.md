@@ -13,7 +13,7 @@ The Cisco Data Bridge Project Suite is a collection of four interrelated reposit
 3. **Cisco Data Bridge Domain Index**  
    - Builds vector databases for domain summaries and Cisco API docs, optimizing retrieval for the AI agent.
 
-4. **Cisco Data Bridge Connect** *(New)*  
+4. **Cisco Data Bridge Connect**
    - A mobile (iOS) app for on-the-go access to the AI agent, domain indexes, and the underlying hybrid environment.
 
 Together, these four projects form a robust ecosystem for developing and deploying AI-driven applications that tightly integrate with Cisco’s networking and collaboration platforms.
