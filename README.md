@@ -1,5 +1,5 @@
 
-![Cisco Data Bridge Banner](app/assets/banner3.png)
+![Cisco Data Bridge Banner](app/assets/banner1.png)
 
 The Cisco Data Bridge Project Suite is a collection of four interrelated repositories designed to provide a complete, enterprise-grade AI/ML solution built on Cisco technologies and modern cloud tools. Whether you need a hybrid infrastructure for machine learning, a function-calling AI agent for Cisco platform integrations, domain-specific indexes for efficient retrieval, or a mobile app to bring it all together—these projects work seamlessly to deliver a secure and scalable environment.
 
