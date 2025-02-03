@@ -76,28 +76,30 @@ The Smart Building environment is characterized by seamless connectivity between
 ![Device Connectivity](assets/smart_buildings.png)
 
 ---
+Below is a reorganized version of Section 2 that streamlines the content and minimizes repetition. You can replace your current "Cisco Data Bridge AI Agent" section with the following text:
+
+---
 
 ## 2. Cisco Data Bridge AI Agent
-**Repository:** [cisco-data-bridge-ai-agent](https://github.com/APO-SRE/cisco-data-bridge-ai-agent)  
-**Purpose**  
-- Implements a “function-calling” AI agent (via FastAPI + LLM) that dynamically routes user requests to various Cisco platforms (Catalyst Center, Meraki, Spaces, Webex, etc.) through dedicated integration clients.
-- Includes an optional retrieval layer (RAG) for domain documents, plus a structured approach to add or expand integrations.
+**Repository:** [cisco-data-bridge-ai-agent](https://github.com/APO-SRE/cisco-data-bridge-ai-agent)
 
-**Why This AI Agent Architecture?**  
+**Overview**  
+The Cisco Data Bridge AI Agent implements a function-calling AI system that uses large language models (LLMs) alongside FastAPI to dynamically route user requests to various Cisco platforms (e.g., Catalyst, Meraki, Spaces, Webex). Its design incorporates a decoupled front-end and back-end, an optional retrieval-augmented generation (RAG) layer for domain-specific context, and a unified Cisco service that standardizes interactions across multiple products.
 
-Compared to a typical “agent with tools” (often one file containing ad-hoc API calls), the Cisco Data Bridge AI Agent emphasizes:
-- **LLM & Retrieval Separation:** Language orchestration and domain lookups are separate from other concerns.
-- **Unified Cisco Service:** Each Cisco product is a modular client, maintaining enterprise standards for security and scalability.
-- **Front/Back-End Split:** The user interface can be replaced or upgraded without altering the LLM or integration layers.
+**Key Features**
+- **LLM & Retrieval Separation:**  
+  The agent first determines if additional domain data is needed (via RAG) and then leverages the LLM for natural language understanding and function calling. This separation ensures that language processing is optimized without being overwhelmed by data retrieval concerns.
 
-As a result, it’s simple to extend: new Cisco features or integrations are added to a single location (e.g., a new client), preserving the rest of the system. This layered approach creates a stable, adaptable codebase aligned with evolving enterprise demands.
+- **Function Dispatcher:**  
+  Instead of hard-coding API calls, each integration is defined in a standardized schema (via `function_definitions.py`). When the LLM returns a structured function call, a dedicated dispatcher invokes the correct method in the unified Cisco service. This approach simplifies adding or modifying integrations.
 
-**Relationship to Other Projects**  
-- Depends on the hybrid environment (`cisco-hybrid-ai-ml-azure-local`) for advanced on-prem AI/ML workflows.
-- Can optionally use domain indexes from `cisco-data-bridge-domain-index` for RAG.
-- Will receive queries from the **Cisco Data Bridge Connect** mobile app for on-the-go operations.
+- **Unified Cisco Service:**  
+  All interactions with Cisco products are routed through a single service layer. This design guarantees consistent error handling, logging, and authentication while making it straightforward to swap or extend individual clients.
 
-Below is a high-level overview of the architecture:
+- **Modular, Scalable Architecture:**  
+  The system is divided into distinct layers—front-end, FastAPI back-end (including routers, retrieval, and LLM integration), and Cisco integrations—allowing each component to be updated or scaled independently.
+
+**High-Level Architecture Diagram**
 
 ```mermaid
 flowchart TB
@@ -208,67 +210,13 @@ style CI fill:#D1FFD1,stroke:#333,stroke-width:2px
 style Clients fill:#D1FFD1,stroke:#333,stroke-width:2px
 ```
 
----
-
-### Key Architectural Highlights
-
-#### Front-End (Static HTML/JS)
-- **Location**: `static/` folder  
-- **Purpose**: Demonstrates the agent’s functionality with a simple UI for chatting and optional visualizations.  
-- **Communication**: Interacts with the FastAPI endpoints via REST calls.  
-- **Flexibility**: Can be replaced or expanded for production deployments.
-
-#### Back-End (FastAPI)
-- **Definition**: Found in `app/main.py` and multiple routers in `app/routers/`. Examples include:
-  - `catalyst_routes.py`
-  - `chat_routes.py`
-  - `meraki_routes.py`
-  - `spaces_routes.py`
-  - `webex_routes.py`
-- **Responsibilities**:  
-  1. Receives requests from the front-end  
-  2. Optionally performs retrieval-augmented generation (RAG) by pulling relevant documents from various vector databases (`retrievers/`)  
-  3. Passes user queries and relevant docs to the LLM  
-  4. If the LLM decides to invoke a Cisco function, `chat_routes.py` delegates the request to a **function dispatcher** for actual execution  
-  5. Returns the final response to the client  
-- **Scalability**: Easily containerized for Docker or Kubernetes.
-
-#### LLM Integration (`app/llm/`)
-- **Logic Storage**: Contains code that communicates with large language models (e.g., Azure OpenAI).  
-- **Prompt Templates & Function Definitions**:  
-  - **Prompt Templates** guide how context is provided to the LLM.  
-  - **function_definitions.py** defines each “tool” or “function” the LLM can call, specifying the name, description, and JSON schema for parameters.  
-- **Function Dispatcher**:  
-  - When the LLM returns a structured `function_call`, the dispatcher executes the correct method in `unified_service.py` to retrieve real data from Cisco APIs.
-
-#### Retrieval Layer (`retrievers/`)
-- **RAG Functionality**: Implements *retrieval-augmented generation* by fetching relevant data from enterprise sources *before* each LLM query, if needed.  
-- **Multiple Options**: Azure Search, Elastic, or Chroma can be used to vectorize and search domain documents.
-
-#### Cisco Integrations (`cisco_integrations/`)
-- **Specialized Clients**: Classes like `cisco_catalyst_client.py`, `cisco_meraki_client.py`, `cisco_spaces_client.py`, `cisco_webex_client.py` handle the respective Cisco product’s REST APIs.  
-- **Base Class Inheritance**: All clients extend `BaseCiscoClient` for consistent error handling, authentication, and retries.  
-- **Unified Service**: `unified_service.py` orchestrates calls to each specialized client, providing a single interface for the rest of the application.
+**Integration with Other Projects**  
+- **Hybrid Infrastructure:** Relies on the `cisco-hybrid-ai-ml-azure-local` repository to provide robust on-prem/hybrid compute resources.  
+- **Domain Indexing:** Optionally leverages domain indexes from `cisco-data-bridge-domain-index` to optimize context retrieval for the LLM.  
+- **Mobile Access:** Receives queries from the **Cisco Data Bridge Connect** app, enabling on-the-go access to the system.
 
 ---
 
-### Why This Architecture?
-
-1. **LLM & Retrieval Separation**  
-   The main application *decides* whether to retrieve domain data, while the LLM focuses on *using* that data. This cleanly isolates large language model usage from enterprise search concerns.
-
-2. **Function Dispatcher**  
-   The dispatcher pattern streamlines how function calls from the LLM are executed in Python. Instead of crowding `chat_routes.py` with “if function == X, call Y,” each function is declared in **function_definitions.py** (the “schema”), and the dispatcher runs the correct code in `unified_service.py` or the specialized Cisco clients.
-
-3. **Unified Cisco Service**  
-   All Cisco product interactions pass through `unified_service.py`, ensuring consistent authentication, logging, and error handling. Each product (Catalyst, Meraki, Spaces, Webex) can be swapped or extended without breaking the rest of the application.
-
-4. **Front/Back-End Split**  
-   The UI is decoupled from the LLM and Cisco integrations. You can update the front-end independently (a React dashboard, a CLI tool, or a new web app), while the back-end logic and integration remain stable.
-
-Overall, the **two-step function-calling approach** (LLM → function call → dispatcher → summary) and **modular retrieval** give teams a stable, enterprise-ready foundation that can scale to new data sources, new Cisco products, or advanced AI usage scenarios.
-
----
 
 ## 3. Cisco Data Bridge Domain Index
 **Repository:** [cisco-data-bridge-domain-index](https://github.com/APO-SRE/cisco-data-bridge-domain-index)  
