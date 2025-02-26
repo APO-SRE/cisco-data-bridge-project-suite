@@ -75,9 +75,6 @@ The Smart Building environment is characterized by seamless connectivity between
 ![Device Connectivity](assets/smart_buildings.png)
 
 ---
-Below is a reorganized version of Section 2 that streamlines the content and minimizes repetition. You can replace your current "Cisco Data Bridge AI Agent" section with the following text:
-
----
 
 ## 2. Cisco Data Bridge AI Agent
 **Repository:** [cisco-data-bridge-ai-agent](https://github.com/APO-SRE/cisco-data-bridge-ai-agent)
