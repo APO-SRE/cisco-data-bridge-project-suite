@@ -246,5 +246,3 @@ style Clients fill:#D1FFD1,stroke:#333,stroke-width:2px
 ---
 
 By combining hybrid infrastructure, a function-calling AI agent, specialized domain indexes, and a mobile access layer, the Cisco Data Bridge Project Suite supports your enterprise AI/ML needs—whether purely on-premises or as a hybrid solution with cloud services.
-```
-
